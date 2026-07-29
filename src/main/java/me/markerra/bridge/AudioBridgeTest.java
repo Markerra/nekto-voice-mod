@@ -3,7 +3,6 @@ package me.markerra.bridge;
 import me.markerra.bridge.audio.NpcVoiceStreamer;
 
 import java.net.URI;
-import java.net.http.WebSocket;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 

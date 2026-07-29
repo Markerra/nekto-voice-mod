@@ -8,9 +8,6 @@ public class modClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        ClientCommandRegistrationCallback.EVENT.register(
-            (dispatcher, registryAccess) ->
-                BridgeCommand.register(dispatcher)
-        );
+
     }
 }
