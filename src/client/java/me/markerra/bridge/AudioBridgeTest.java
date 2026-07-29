@@ -3,14 +3,22 @@ package me.markerra.bridge;
 import me.markerra.bridge.audio.NpcVoiceStreamer;
 
 import java.net.URI;
+import java.net.http.WebSocket;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class AudioBridgeTest {
     private static final AtomicInteger framesReceived = new AtomicInteger(0);
     private static final AtomicInteger bytesReceived = new AtomicInteger(0);
 
+    private static final AtomicReference<MinecraftBridgeClient> bridgeClient = new AtomicReference<>();
+
     public static void runTest() {
         try {
+            if (bridgeClient.get() != null) {
+                return;
+            }
+
             URI uri = new URI("ws://127.0.0.1:25565" + BridgeProtocol.CHANNEL_BROWSER);
 
             NpcVoiceStreamer streamer = new NpcVoiceStreamer();
@@ -34,9 +42,19 @@ public class AudioBridgeTest {
                 }
             );
 
+            bridgeClient.set(client);
             client.connect();
-            System.out.println("[Minecraft Test] Connecting to bridge...");
 
+            System.out.println("[Minecraft Test] Connecting to bridge...");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void stopTest() {
+        try {
+            bridgeClient.get().close();
+            bridgeClient.set(null);
         } catch (Exception e) {
             e.printStackTrace();
         }
