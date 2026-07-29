@@ -44,7 +44,7 @@ public class NpcAudioSource {
             return false;
         }
 
-        channel.setDistance(48F);
+        channel.setDistance(24F);
 
         System.out.println("[NPC] Audio source created");
 
@@ -53,7 +53,7 @@ public class NpcAudioSource {
 
     public void remove() {
 
-        VoiceChatManager.getTestPlayer().stop();
+        VoiceChatManager.getAudioPlayer().stop();
 
         if (armorStand != null) {
             armorStand.discard();

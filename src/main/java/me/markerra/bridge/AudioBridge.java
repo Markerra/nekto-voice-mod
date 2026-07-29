@@ -1,18 +1,19 @@
 package me.markerra.bridge;
 
 import me.markerra.bridge.audio.NpcVoiceStreamer;
+import me.markerra.voice.VoiceChatManager;
 
 import java.net.URI;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class AudioBridgeTest {
+public class AudioBridge {
     private static final AtomicInteger framesReceived = new AtomicInteger(0);
     private static final AtomicInteger bytesReceived = new AtomicInteger(0);
 
     private static final AtomicReference<MinecraftBridgeClient> bridgeClient = new AtomicReference<>();
 
-    public static void runTest() {
+    public static void start() {
         try {
             if (bridgeClient.get() != null) {
                 return;
@@ -20,7 +21,7 @@ public class AudioBridgeTest {
 
             URI uri = new URI("ws://127.0.0.1:25565" + BridgeProtocol.CHANNEL_BROWSER);
 
-            NpcVoiceStreamer streamer = new NpcVoiceStreamer();
+            NpcVoiceStreamer streamer = VoiceChatManager.getStreamer();
             MinecraftBridgeClient client = new MinecraftBridgeClient(
                 uri,
                 BridgeProtocol.ROLE_CONSUMER,
@@ -32,10 +33,10 @@ public class AudioBridgeTest {
 
                     if (frames % 50 == 0) {
                         System.out.printf(
-                                "[Minecraft Test] Frames=%d Bytes=%d Queue=%d%n",
+                                "[Minecraft Bridge] Frames=%d Bytes=%d Queue=%d%n",
                                 frames,
                                 bytes,
-                                streamer.queuedFrames()
+                                streamer.getQueue().size()
                         );
                     }
                 }
@@ -44,13 +45,13 @@ public class AudioBridgeTest {
             bridgeClient.set(client);
             client.connect();
 
-            System.out.println("[Minecraft Test] Connecting to bridge...");
+            System.out.println("[Minecraft Bridge] Connecting to bridge...");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void stopTest() {
+    public static void stop() {
         try {
             bridgeClient.get().close();
             bridgeClient.set(null);

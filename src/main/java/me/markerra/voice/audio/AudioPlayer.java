@@ -2,14 +2,15 @@ package me.markerra.voice.audio;
 
 import de.maxhenkel.voicechat.api.opus.OpusEncoder;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
-import de.maxhenkel.voicechat.api.audiochannel.AudioPlayer;
 import de.maxhenkel.voicechat.api.audiochannel.EntityAudioChannel;
+import me.markerra.bridge.audio.NpcVoiceStreamer;
 import me.markerra.voice.VoiceChatManager;
 
-public class AudioTestPlayer {
+public class AudioPlayer {
 
-    private AudioPlayer player;
+    private de.maxhenkel.voicechat.api.audiochannel.AudioPlayer player;
     private EntityAudioChannel channel;
+    private NpcVoiceStreamer streamer;
 
     public boolean isPlaying() {
         return player != null && player.isPlaying();
@@ -45,15 +46,16 @@ public class AudioTestPlayer {
             return;
         }
 
+        streamer = VoiceChatManager.getStreamer();
+
         player = api.createAudioPlayer(
                 channel,
                 encoder,
-                new SineWaveGenerator()
+                new PcmAudioSupplier(streamer.getQueue())
         );
 
         player.startPlaying();
 
-        System.out.println("[VoiceChat] Test tone started");
 
     }
 

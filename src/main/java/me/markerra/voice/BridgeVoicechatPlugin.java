@@ -19,7 +19,6 @@ public class BridgeVoicechatPlugin implements VoicechatPlugin {
 
     @Override
     public void registerEvents(EventRegistration registration) {
-
         registration.registerEvent(VoicechatServerStartedEvent.class,
                 VoiceChatEvents::onServerStarted);
 
