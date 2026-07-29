@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "nekto_voice",
+  "version": "${version}",
+  "name": "Nekto Voice",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/nekto_voice/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-datagen": [
+      "me.markerra.client.modDataGenerator"
+    ],
+    "client": [
+      "me.markerra.client.modClient"
+    ],
+    "main": [
+      "me.markerra.NektoMod"
+    ]
+  },
+  "mixins": [
+    "nekto_voice.mixins.json",
+    {
+      "config": "nekto_voice.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "voicechat_api": ">=${voicechat_api_version}",
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
