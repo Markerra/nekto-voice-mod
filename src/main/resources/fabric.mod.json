@@ -20,7 +20,7 @@
       "me.markerra.NektoMod"
     ],
     "voicechat": [
-      "me.markerra.voicechat.BridgeVoicechatPlugin"
+      "me.markerra.voice.BridgeVoicechatPlugin"
     ]
   },
   "mixins": [

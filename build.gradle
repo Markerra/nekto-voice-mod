@@ -50,8 +50,8 @@ dependencies {
 
     implementation "org.java-websocket:Java-WebSocket:1.6.0"
 
-    implementation "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"
-    modRuntimeOnly "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}:fabric-stub"
+    implementation "de.maxhenkel.voice:voice-api:${voicechat_api_version}"
+    modRuntimeOnly "de.maxhenkel.voice:voice-api:${voicechat_api_version}:fabric-stub"
     modRuntimeOnly "maven.modrinth:simple-voice-chat:fabric-${project.minecraft_version}-${voicechat_api_version}"
 }
 

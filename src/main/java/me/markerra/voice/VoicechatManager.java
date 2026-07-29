@@ -1,4 +1,4 @@
-package me.markerra.voicechat;
+package me.markerra.voice;
 
 public class VoicechatManager {
 }

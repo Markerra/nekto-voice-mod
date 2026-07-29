@@ -1,4 +1,4 @@
-package me.markerra.voicechat;
+package me.markerra.voice;
 
 import de.maxhenkel.voicechat.api.VoicechatApi;
 import de.maxhenkel.voicechat.api.VoicechatPlugin;
