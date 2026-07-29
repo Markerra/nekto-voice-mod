@@ -23,4 +23,6 @@ public class PcmFrameQueue {
         queue.clear();
     }
 
+    public boolean isEmpty() { return queue.isEmpty(); }
+
 }

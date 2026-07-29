@@ -1,22 +1,30 @@
 package me.markerra.voice;
 
+import de.maxhenkel.voicechat.api.events.EventRegistration;
+import de.maxhenkel.voicechat.api.events.VoicechatServerStartedEvent;
 import de.maxhenkel.voicechat.api.VoicechatApi;
 import de.maxhenkel.voicechat.api.VoicechatPlugin;
-import de.maxhenkel.voicechat.api.events.EventRegistration;
 
 public class BridgeVoicechatPlugin implements VoicechatPlugin {
+
     @Override
     public String getPluginId() {
-        return "nekto_voice";
+        return "nektomod";
     }
 
     @Override
     public void initialize(VoicechatApi api) {
-        VoicechatPlugin.super.initialize(api);
+        System.out.println("[VoiceChat] Plugin initialized");
     }
 
     @Override
     public void registerEvents(EventRegistration registration) {
-        VoicechatPlugin.super.registerEvents(registration);
+
+        registration.registerEvent(VoicechatServerStartedEvent.class,
+                VoiceChatEvents::onServerStarted);
+
+        registration.registerEvent(VoicechatServerStartedEvent.class,
+                VoiceChatEvents::onServerStopped);
     }
+
 }
