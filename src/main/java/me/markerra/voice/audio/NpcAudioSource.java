@@ -2,18 +2,20 @@ package me.markerra.voice.audio;
 
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.EntityAudioChannel;
+import me.markerra.entity.ModEntities;
+import me.markerra.entity.NpcEntity;
 import me.markerra.voice.VoiceChatManager;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.EntitySpawnReason;
 
 import java.util.UUID;
 
 public class NpcAudioSource {
 
-    private ArmorStand armorStand;
+    private NpcEntity npc;
     private EntityAudioChannel channel;
 
-    public boolean spawn(ServerLevel level, double x, double y, double z) {
+    public boolean spawn(ServerLevel level, double x, double y, double z, float rotation) {
 
         VoicechatServerApi api = VoiceChatManager.getApi();
 
@@ -22,21 +24,26 @@ public class NpcAudioSource {
             return false;
         }
 
-        armorStand = new ArmorStand(
-                level,
+        npc = ModEntities.NPC.create(level, EntitySpawnReason.COMMAND);
+
+        if (npc == null) {
+            System.out.println("[NPC] Failed to create entity");
+            return false;
+        }
+
+        npc.snapTo(
                 x,
                 y,
-                z
+                z,
+                rotation,
+                0F
         );
 
-        armorStand.setNoGravity(true);
-        armorStand.setInvisible(true);
-
-        level.addFreshEntity(armorStand);
+        level.addFreshEntity(npc);
 
         channel = api.createEntityAudioChannel(
                 UUID.randomUUID(),
-                api.fromEntity(armorStand)
+                api.fromEntity(npc)
         );
 
         if (channel == null) {
@@ -55,9 +62,9 @@ public class NpcAudioSource {
 
         VoiceChatManager.getAudioPlayer().stop();
 
-        if (armorStand != null) {
-            armorStand.discard();
-            armorStand = null;
+        if (npc != null) {
+            npc.discard();
+            npc = null;
         }
 
         channel = null;
@@ -67,4 +74,7 @@ public class NpcAudioSource {
         return channel;
     }
 
+    public NpcEntity getEntity() {
+        return npc;
+    }
 }

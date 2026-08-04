@@ -3,11 +3,11 @@ package me.markerra.bridge.command;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import me.markerra.bridge.AudioBridge;
+import me.markerra.bridge.BridgeProtocol;
 import me.markerra.voice.VoiceChatManager;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 
@@ -17,28 +17,40 @@ public class BridgeCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 
         dispatcher.register(
-                Commands.literal("bridge")
+                Commands.literal("nekto")
+                        // nekto chat
+                        .then(Commands.literal("chat")
+                                .then(Commands.literal("start")
+                                        .executes(ctx -> startChat(ctx.getSource())))
+                                .then(Commands.literal("end")
+                                        .executes(ctx -> endChat(ctx.getSource())))
+                                .then(Commands.literal("skip")
+                                        .executes(ctx -> skipChat(ctx.getSource())))
+                        )
 
-                        .then(Commands.literal("start")
-                                .executes(ctx -> start(ctx.getSource())))
+                        // nekto bridge
+                        .then(Commands.literal("bridge")
+                                .then(Commands.literal("start")
+                                        .executes(ctx -> start(ctx.getSource())))
+                                .then(Commands.literal("stop")
+                                        .executes(ctx -> stop(ctx.getSource())))
+                                .then(Commands.literal("restart")
+                                        .executes(ctx -> restart(ctx.getSource())))
+                                .then(Commands.literal("status")
+                                        .executes(ctx -> status(ctx.getSource())))
+                        )
 
-                        .then(Commands.literal("stop")
-                                .executes(ctx -> stop(ctx.getSource())))
-
-                        .then(Commands.literal("status")
-                                .executes(ctx -> status(ctx.getSource())))
-
-                        .then(Commands.literal("spawn")
-                                .executes(ctx -> spawn(ctx.getSource())))
-
-                        .then(Commands.literal("remove")
-                                .executes(ctx -> remove(ctx.getSource())))
-
-                        .then(Commands.literal("playvoice")
-                                .executes(ctx -> playVoice(ctx.getSource())))
-
-                        .then(Commands.literal("stopvoice")
-                                .executes(ctx -> stopVoice(ctx.getSource())))
+                        // nekto npc
+                        .then(Commands.literal("npc")
+                                .then(Commands.literal("spawn")
+                                        .executes(ctx -> spawn(ctx.getSource())))
+                                .then(Commands.literal("remove")
+                                        .executes(ctx -> remove(ctx.getSource())))
+                                .then(Commands.literal("playvoice")
+                                        .executes(ctx -> playVoice(ctx.getSource())))
+                                .then(Commands.literal("stopvoice")
+                                        .executes(ctx -> stopVoice(ctx.getSource())))
+                        )
         );
     }
 
@@ -60,6 +72,19 @@ public class BridgeCommand {
 
         source.sendSuccess(
                 () -> Component.literal("Bridge stopped."),
+                false
+        );
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int restart(CommandSourceStack source) {
+
+        AudioBridge.stop();
+        AudioBridge.start();
+
+        source.sendSuccess(
+                () -> Component.literal("Bridge restarted."),
                 false
         );
 
@@ -98,34 +123,23 @@ public class BridgeCommand {
     }
 
     private static int spawn(CommandSourceStack source) {
-
-        MinecraftServer server = source.getServer();
-
-        ServerLevel level = server.overworld();
+        ServerLevel level = source.getLevel();
 
         Vec3 pos = source.getPosition();
 
-        boolean success = VoiceChatManager.getNpc().spawn(
-                level,
-                pos.x,
-                pos.y,
-                pos.z
-        );
+        boolean npcCreated = VoiceChatManager.getNpc().spawn(level, pos.x, pos.y, pos.z, source.getRotation().y);
 
-        if (success) {
-
-            source.sendSuccess(
-                    () -> Component.literal("NPC spawned."),
-                    false
-            );
-
-        } else {
-
-            source.sendFailure(
-                    Component.literal("Failed to spawn NPC.")
-            );
-
+        if (!npcCreated) {
+            source.sendFailure(Component.literal("Failed"));
+            return 0;
         }
+
+        playVoice(source);
+
+        source.sendSuccess(
+                () -> Component.literal("NPC spawned"),
+                false
+        );
 
         return Command.SINGLE_SUCCESS;
     }
@@ -177,4 +191,31 @@ public class BridgeCommand {
         return Command.SINGLE_SUCCESS;
     }
 
+    private static int startChat(CommandSourceStack source) {
+        AudioBridge.sendAction(BridgeProtocol.ActionMessage.START_DIALOG);
+
+        source.sendSuccess(
+                () -> Component.literal("Auto search is enabled."),
+                false
+        );
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int endChat(CommandSourceStack source) {
+        AudioBridge.sendAction(BridgeProtocol.ActionMessage.END_DIALOG);
+
+        source.sendSuccess(
+                () -> Component.literal("Auto search is disabled."),
+                false
+        );
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int skipChat(CommandSourceStack source) {
+        AudioBridge.sendAction(BridgeProtocol.ActionMessage.SKIP_DIALOG);
+
+        return Command.SINGLE_SUCCESS;
+    }
 }

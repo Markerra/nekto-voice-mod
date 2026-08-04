@@ -11,13 +11,13 @@
   "environment": "*",
   "entrypoints": {
     "fabric-datagen": [
-      "me.markerra.client.modDataGenerator"
-    ],
-    "client": [
-      "me.markerra.client.modClient"
+      "me.markerra.client.NektoDataGenerator"
     ],
     "main": [
       "me.markerra.NektoMod"
+    ],
+    "client": [
+      "me.markerra.client.NektoClient"
     ],
     "voicechat": [
       "me.markerra.voice.BridgeVoicechatPlugin"

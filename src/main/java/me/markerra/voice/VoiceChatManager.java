@@ -31,12 +31,12 @@ public class VoiceChatManager {
         return AUDIO_PLAYER;
     }
 
-    public static NpcAudioSource getNpc() {
-        return NPC;
-    }
-
     public static NpcVoiceStreamer getStreamer() {
         return STREAMER;
+    }
+
+    public static NpcAudioSource getNpc() {
+        return NPC;
     }
 
 }

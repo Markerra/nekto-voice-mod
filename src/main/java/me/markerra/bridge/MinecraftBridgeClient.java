@@ -1,5 +1,6 @@
 package me.markerra.bridge;
 
+import com.google.gson.JsonObject;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
@@ -8,6 +9,8 @@ import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 public class MinecraftBridgeClient extends WebSocketClient {
+    public boolean isDialogActive = false;
+    public int dialogSeconds = 0;
 
     private final String role;
     private final Consumer<byte[]> onPcmFrameReceived;
@@ -21,23 +24,38 @@ public class MinecraftBridgeClient extends WebSocketClient {
 
     @Override
     public void onOpen(ServerHandshake handshakedata) {
-        System.out.println("[BridgeClient] Подключено к серверу. Ожидание handshake...");
+        System.out.println("[BridgeClient] Connected to the server. Waiting for the handshake...");
     }
 
     @Override
     public void onMessage(String message) {
         try {
-            BridgeProtocol.StateMessage stateMsg = BridgeProtocol.StateMessage.fromJson(message);
-            if (stateMsg == null || stateMsg.type() == null) return;
+            JsonObject json = BridgeProtocol.GSON.fromJson(message, JsonObject.class);
+            if (json == null || !json.has("type")) return;
 
-            // server sent connected, send role to server
-            if ("connected".equals(stateMsg.state())) {
-                send(new BridgeProtocol.HelloMessage(role).toJson());
-            }
-            // server sent 'ready', channel is opened
-            else if ("ready".equals(stateMsg.state())) {
-                isReady = true;
-                System.out.println("[BridgeClient] Audio channel is opened");
+            System.out.println("[BridgeClient] JSON: " + json);
+
+            String type = json.get("type").getAsString();
+
+            switch (type) {
+                case "state" -> {
+                    // Системные статусы сервера (Handshake)
+                    BridgeProtocol.StateMessage stateMsg = BridgeProtocol.StateMessage.fromJson(message);
+                    if (stateMsg.state() == null) return;
+
+                    if ("connected".equals(stateMsg.state())) {
+                        send(new BridgeProtocol.HelloMessage(role).toJson());
+                    } else if ("ready".equals(stateMsg.state())) {
+                        this.isReady = true;
+                        System.out.println("[BridgeClient] Audio channel is opened");
+                    }
+                }
+
+                case "dialog_state" -> {
+                    BridgeProtocol.DialogStateEvent dialogEvent = BridgeProtocol.DialogStateEvent.fromJson(message);
+                    this.dialogSeconds = dialogEvent.secondsPassed();
+                    this.isDialogActive = dialogEvent.active();
+                }
             }
         } catch (Exception e) {
             System.err.println("[BridgeClient] Failed to read JSON: " + e.getMessage());
